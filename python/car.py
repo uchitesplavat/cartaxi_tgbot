@@ -72,8 +72,8 @@ def parse_and_process_friend_order_data(message_text, chat_id, context):
 
 def send_table_selection_buttons(update: Update, context: CallbackContext):
     keyboard = [
-        [InlineKeyboardButton("aggr_order", callback_data="aggr_order"),
-         InlineKeyboardButton("friend_order", callback_data="friend_order")]
+        [InlineKeyboardButton("Агрегатор", callback_data="aggr_order"),
+         InlineKeyboardButton("Дружеский заказ", callback_data="friend_order")]
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -83,6 +83,19 @@ def send_table_selection_buttons(update: Update, context: CallbackContext):
 
 
 def start(update: Update, context: CallbackContext):
+    instructions = '''
+    Добро пожаловать в наш бот для отслеживания заказов эвакуатора!
+    
+    Инструкция по использованию бота:
+    1. Напишите команду /start, чтобы начать работу с ботом.
+    2. Выберите таблицу, в которую хотите добавить данные, нажав на одну из кнопок: "Заказ через агрегатор или с улицы" или "Дружеский заказ".
+    3. Введите данные заказа, следуя формату, указанному ниже:
+       - Для таблицы "Агрегатор": ID(Александр - 1, Борис - 2),Дата,Сумма,Тип выплаты,Доступность (например: 1,2023-04-23,5000,cash,True)
+       - Для таблицы "Дружеский": ID(Александр - 1, Борис - 2),Дата,Сумма,Доступность (например: 2,2023-04-23,3500,True)
+    4. Используйте команду /end_day, чтобы завершить день и рассчитать зарплаты и обновить данные в таблице банка. Вы можете добавить аргумент "today" или "yesterday" для расчета зарплат и обновления банка за текущий или предыдущий день (например: /end_day today). Вы также можете указать день, для которого нужно рассчитать зарплату, добавив аргумент 'today' или 'yesterday'. Например: /end_day today или /end_day yesterday.
+    '''
+
+    context.bot.send_message(chat_id=update.effective_chat.id, text=instructions)
     send_table_selection_buttons(update, context)
 
 
@@ -242,8 +255,8 @@ def end_day(update: Update, context: CallbackContext):
                 else:
                     salary = base_salary + 0.5 * sum_after_first_3_excluding_first_3
 
-            print(base_salary + 0.5 * (total_cash + total_air - record_limit))
-            print(sum_after_first_3_excluding_first_3)
+            # print(base_salary + 0.5 * (total_cash + total_air - record_limit))
+            # print(sum_after_first_3_excluding_first_3)
             # all_payouts = sorted(aggr_cash_payouts + aggr_air_payouts + friend_payouts, reverse=True)
             # sum_after_first_3 = sum(all_payouts[3:])
 
@@ -306,6 +319,12 @@ def end_day(update: Update, context: CallbackContext):
             """
             cursor.execute(insert_query)
 
+            if id == 1:
+                context.bot.send_message(chat_id=update.effective_chat.id,
+                                     text=f"💰 Зарплата Александра {salary}")
+            else:
+                context.bot.send_message(chat_id=update.effective_chat.id,
+                                     text=f"💰 Зарплата Бориса {salary}")
             # conn.commit()
             # cursor.close()
             # conn.close()
