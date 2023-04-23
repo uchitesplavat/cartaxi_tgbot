@@ -275,10 +275,47 @@ def end_day(update: Update, context: CallbackContext):
             """
             cursor.execute(insert_query)
 
+            # Calculate the sum of all salaries for the day
+            cursor.execute(f"SELECT SUM(salary) FROM salary WHERE date = '{target_date_str}';")
+            total_salary = cursor.fetchone()[0] or 0
+
+            # Calculate the sum of all cash and air for the day
+            cursor.execute(f"SELECT SUM(cash) + SUM(air) FROM salary WHERE date = '{target_date_str}';")
+            total_cash_and_air = cursor.fetchone()[0] or 0
+
+            # Get the previous day's amount from the bank table
+            prev_day = target_date - datetime.timedelta(days=1)
+            prev_day_str = prev_day.strftime('%Y-%m-%d')
+            cursor.execute(f"SELECT amount FROM bank WHERE date = '{prev_day_str}';")
+            prev_day_amount = cursor.fetchone()
+
+            if prev_day_amount:
+                prev_day_amount = prev_day_amount[0]
+            else:
+                prev_day_amount = 0
+
+            # Calculate the new amount for the present day
+            new_amount = prev_day_amount - total_salary + total_cash_and_air
+
+            # Insert or update the bank table for the present day
+            insert_query = f"""
+            INSERT INTO bank (date, amount)
+            VALUES ('{target_date_str}', {new_amount})
+            ON CONFLICT (date)
+            DO UPDATE SET amount = {new_amount};
+            """
+            cursor.execute(insert_query)
+
+            # conn.commit()
+            # cursor.close()
+            # conn.close()
+
+
+
         conn.commit()
         cursor.close()
         conn.close()
-        context.bot.send_message(chat_id=update.effective_chat.id, text=f"End of {day} data added to the salary table.")
+        context.bot.send_message(chat_id=update.effective_chat.id, text=f"End of {day} data added to the salary table and updated the bank table.")
     except Exception as e:
         print(str(e))
         context.bot.send_message(chat_id=update.effective_chat.id,
