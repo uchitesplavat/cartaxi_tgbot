@@ -177,39 +177,6 @@ def end_day(update: Update, context: CallbackContext):
             sum_after_first_3 = sum(all_payouts[3:])
 
             sum_after_first_3_excluding_first_3 = 0
-            # base_salary = 2500
-            # record_limit = 12000
-            # if (total_cash + total_air) > record_limit:
-            #     salary = base_salary + 0.5 * (total_cash + total_air - record_limit)
-            # elif total_record_count > 3:
-            #     # Calculate sum of payouts after the first 3 records
-            #     cursor.execute(f"""
-            #         SELECT SUM(payout) FROM (
-            #             SELECT payout, timestamp FROM aggr_order WHERE id = {id} AND date = '{target_date_str}'
-            #             UNION ALL
-            #             SELECT payout, timestamp FROM friend_order WHERE id = {id} AND date = '{target_date_str}'
-            #         ) AS all_orders
-            #         ORDER BY timestamp ASC
-            #         OFFSET 3;
-            #         """)
-            #     sum_after_first_3_excluding_first_3 = cursor.fetchone()[0] or 0
-            #
-            #     salary = base_salary + 0.5 * sum_after_first_3_excluding_first_3
-            # elif total_record_count > 0:
-            #     salary = base_salary
-            # else:
-            #     salary = 0
-            #
-            # if (total_cash + total_air > record_limit) and (total_record_count > 3):
-            #     if (base_salary + 0.5 * (total_cash + total_air - record_limit)) > (base_salary + 0.5 * sum_after_first_3_excluding_first_3):
-            #         print("first if")
-            #         salary = base_salary + 0.5 * (total_cash + total_air - record_limit)
-            #     else:
-            #         print("second if")
-            #         salary = base_salary + 0.5 * sum_after_first_3_excluding_first_3
-
-            # print(base_salary + 0.5 * (total_cash + total_air - record_limit))
-            # print(base_salary + 0.5 * sum_after_first_3_excluding_first_3)
 
             base_salary = 2500
             record_limit = 12000
@@ -255,31 +222,6 @@ def end_day(update: Update, context: CallbackContext):
                 else:
                     salary = base_salary + 0.5 * sum_after_first_3_excluding_first_3
 
-            # print(base_salary + 0.5 * (total_cash + total_air - record_limit))
-            # print(sum_after_first_3_excluding_first_3)
-            # all_payouts = sorted(aggr_cash_payouts + aggr_air_payouts + friend_payouts, reverse=True)
-            # sum_after_first_3 = sum(all_payouts[3:])
-
-            # base_salary = 2500
-            # record_limit = 12000
-            # if (total_cash + total_air) > record_limit:
-            #     salary = base_salary + 0.5 * (total_cash + total_air - record_limit)
-            # elif total_record_count > 3:
-            #     salary = base_salary + 0.5 * (total_cash + total_air - sum_after_first_3)
-            # elif total_record_count > 0:
-            #     salary = base_salary
-            # else:
-            #     salary = 0
-            #
-            # if (total_cash + total_air > record_limit) and (total_record_count > 3):
-            #     if (base_salary + 0.5 * (total_cash + total_air - record_limit)) > (base_salary + 0.5 * (total_cash + total_air - sum_after_first_3)):
-            #         salary = base_salary + 0.5 * (total_cash + total_air - record_limit)
-            #     else:
-            #         salary = base_salary + 0.5 * (total_cash + total_air - sum_after_first_3)
-            #
-            #     print(base_salary + 0.5 * (total_cash + total_air - record_limit))
-            #     print(base_salary + 0.5 * (total_cash + total_air - record_limit))
-            # Insert or update the cash, air sums, and salary in the salary table
             insert_query = f"""
             INSERT INTO salary (id, date, cash, air, salary)
             VALUES ({id}, '{target_date_str}', {total_cash}, {total_air}, {salary})
@@ -325,11 +267,6 @@ def end_day(update: Update, context: CallbackContext):
             else:
                 context.bot.send_message(chat_id=update.effective_chat.id,
                                      text=f"💰 Зарплата Бориса {salary}")
-            # conn.commit()
-            # cursor.close()
-            # conn.close()
-
-
 
         conn.commit()
         cursor.close()
