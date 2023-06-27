@@ -1,6 +1,7 @@
 import os
 import psycopg2
 import datetime
+import config
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters, CallbackContext
 
@@ -279,7 +280,7 @@ def end_day(update: Update, context: CallbackContext):
 
 
 def main():
-    token = "5600063503:AAHPtxvBH3w0MBqoHTEaDtUjRLX7lNMKXxE"
+    token = config.api_key
     updater = Updater(token, use_context=True)
 
     dp = updater.dispatcher
